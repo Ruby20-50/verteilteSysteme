@@ -1,0 +1,8 @@
+ssh student@<IP von client1>
+Mit SSH haben wir uns vom operator-Rechner auf client1 verbunden.
+ping <IP von client2>
+Der ping-Befehl wurde auf client1 ausgeführt,
+um die Erreichbarkeit von client2 zu prüfen.
+client2 war erreichbar.
+Es kamen Antworten mit Zeiten in Millisekunden zurück.
+   🧝🏻‍♀️🧚‍♀️
