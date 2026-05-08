@@ -1,3 +1,82 @@
-#wichtige Kommandos
-ip link
-ip address
+#halten Sie Ihre Beobachtungen strukturiert fest.
+-ip link
+System: student@nuco03 (Ubuntu Noble / 24.04)
+lo: <loopback, up , lower_up>
+        interface_name <interface talk to itself, enabled by the OS, physical signal is active>
+    mtu 65536 
+        it is the maximum Transmission Unit. it is huge --> because it has no real physical limit as it loops back 
+    qdisc noqueue 
+        how packets are queued before sending.
+         means no buffering needed (loopback is instant, no real network).
+    00:00:00:00:00:00
+        this is the MAC address
+    brd 00:00:00:00:00:00 
+        the broadcast address: is a special address used to send a message to ALL (virtual) devices on a network simultaneously
+eno1 <BROADCAST,MULTICAST,UP,LOWER_UP> 
+ cable is physically plugged in and the interface is enabled
+    eno --> stands for ethernet onboard
+        Broadcast --> can send broadcase packets on all devices on the network
+        multicast --> can send packets to specific devices
+        up --> interface is enabled by the OS
+        LOWER_UP --> cable plugged in and signal detected
+    mtu 1500 max packet size
+    qdisc: fq_codel 
+        qdisc --> The queuing discipline used to manage outgoing packets. 
+        fq_codel is a modern algorithm that reduces latency and prevents bufferbloat.
+    state Up --> The interface is active and running.
+    mode Default --> Operating in default mode — no special configured.
+    group Default --> standard
+    link/etherLink --> type is Ethernet
+        1c:69:7a:af:7f:1bThe --> MAC address 
+    brd ff:ff:ff:ff:ff:ff --> The broadcast MAC address
+
+wlo2: <Broadcast, Multicast>
+    wifi interface built into motherboard index 2: 
+        <Capable of broadcasting, Capable of multicast> not up, not LOWER_UP
+    mtu 1500 --> max packet size is 1500 bytes, standard ether network
+    qdisc noop --> no operation / Drops ALL packets, because the interface is DOWN
+    state down --> it is off
+    queue length Maximum 1000 packets can be queued 
+        though irrelevant here since noop drops everything anyway
+
+    link/ether c4:23:60:53:cf:8c --> MAC Address
+    brd ff:ff:ff:ff:ff:ff
+    altname wlp0s12f0
+
+
+
+-ip address
+lo: <loopback, up , lower_up> the same 
+    mtu 65536 
+        it is the maximum Transmission Unit. it is huge --> because it has no real physical limit as it loops back 
+    qdisc noqueue 
+        how packets are queued before sending.
+         means no buffering needed (loopback is instant, no real network).
+    00:00:00:00:00:00
+        this is the MAC address
+    brd 00:00:00:00:00:00 
+        the broadcast address: is a special address used to send a message to ALL (virtual) devices on a network simultaneously
+
+    difference:
+        inet 127.0.0.1/8 scope host lo
+            127.0.0.1 --> This is the loopback address
+            /8 --> the subnet mask. This means the first 8 bits of the address define the network
+            in practice 127.0.0.0 to 127.255.255.255
+            in reality only 127.0.0.1 is used 
+            host --> Only valid on this machine
+        All lifetimes: forever --> statically assigned, not from DHCP
+        IPv6: ::1/128 --> loopback in IPv6
+
+eno1: <BROADCAST,MULTICAST,UP,LOWER_UP>
+    mtu 1500
+        Maximum packet size is 1500 bytes 
+    MAC: 1c:69:7a:af:7f:1b
+    IPv4: 172.16.3.20/24 — assigned IP, broadcast 172.16.3.255, scope global
+    IPv6: fe80::1e69:7aff:feaf:7f1b/64 — link-local IPv6 address (scope link)
+    All lifetimes: forever — statically assigned, not from DHCP
+    link --> Valid on the local network segment
+
+wlo2 (Wi-Fi)
+State: DOWN --> no IP addresses assigned at all
+MAC: c4:23:60:53:cf:8c
+No inet or inet6 lines--> because completely inactive
