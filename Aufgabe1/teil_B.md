@@ -92,7 +92,7 @@ wlo2 (Wi-Fi)
     MAC: c4:23:60:53:cf:8c
     Keine inet- oder inet6-Zeilen --> da das Interface vollständig inaktiv ist
 
-    # Dokumentieren Sie Ihre Beobachtungen, insbesondere ob die Rechner erreichbar sind und welche Antwortzeiten (Round-Trip-Zeiten) gemessen werden.
+# Dokumentieren Sie Ihre Beobachtungen, insbesondere ob die Rechner erreichbar sind und welche Antwortzeiten (Round-Trip-Zeiten) gemessen werden.
 
     Befehl: ping 172.16.3.100
 client1 ist erreichbar.
@@ -187,11 +187,6 @@ State: DOWN --> no IP addresses assigned at all
 MAC: c4:23:60:53:cf:8c
 No inet or inet6 lines--> because completely inactive
 
- # Dokumentieren Sie Ihre Beobachtungen, insbesondere ob die Rechner erreichbar sind und welche Antwortzeiten (Round-Trip-Zeiten) gemessen werden.
+ # Führen Sie anschließend Verbindungstests vom Operator-Rechner zu client1 und client2 durch. Dokumentieren Sie Ihre Beobachtungen, insbesondere ob die Rechner erreichbar sind und welche Antwortzeiten (Round-Trip-Zeiten) gemessen werden.
 
-command: ping 172.16.3.100
-the client1 is reachable 
-    client2 has sent 27 packets and client1 recieved 27 with 0 packet loss
-    time 26664 ms --> 26, 664 seconds
-    round trip time min   /avg  /max  /mdev 
-                    0.416/0.550/0.745/0.082 ms 
+nicht gemacht!
