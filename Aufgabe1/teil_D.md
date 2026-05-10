@@ -20,7 +20,7 @@ wir haben für rsync entscheidet
 Übertragung 2: 3m 5,493s
 Übertragung 3: 3m 14, 176s
 
-#Vergleichen Sie die Ergebnisse: Sind die gemessenen Zeiten ähnlich oder 
+# Vergleichen Sie die Ergebnisse: Sind die gemessenen Zeiten ähnlich oder 
 # unterscheiden sie sich deutlich? Diskutieren Sie mögliche Einflussfaktoren
 erst mal unterscheidet sich deutlich mit der zwei weitern mals
 1- gleichzeitige mehrere Übertragung.
