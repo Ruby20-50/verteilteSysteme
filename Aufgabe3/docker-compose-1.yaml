@@ -1,0 +1,13 @@
+services:
+  vs-info:
+    image: registry.bht-berlin.de:443/ris/distributedsystems/vs-info:latest
+    container_name: vs-info
+    ports:
+      - "8088:8088"
+    networks:
+      - backend
+
+networks:
+  backend:
+    name: backend-network
+

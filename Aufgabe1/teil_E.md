@@ -5,6 +5,7 @@ können wir die Funktion auch auf Dateien implementieren?
 
 - wie heißt integrität?
     dass jedes einzelne Bit genau so ankam, wie es gesendet wurde – ohne dass während der Übertragung etwas beschädigt wurde, fehlte oder verändert wurde.
+    
 Laut was Integrität ist, wir schatzen dass wir durch die Dateigroße Messung, ob die Datei etwas fehlt messen können. aber es könnte sein, die Datei verändert oder Beschädigt wurde 
 
 
