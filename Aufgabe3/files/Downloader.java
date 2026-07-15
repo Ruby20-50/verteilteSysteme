@@ -38,13 +38,22 @@ public class Downloader {
         
         // send HEAD request to get Content-Length
         long contentLength = sendHeadRequest(host, port, path);
+        if (contentLength > 0) {                          // skip if size unknown (no Content-Length)
+            long freeSpace = new File(".").getFreeSpace(); // "." = current working directory
+            if (contentLength > freeSpace) {
+                System.err.println("Error: not enough free space. Need "
+                    + contentLength + " bytes, but only " + freeSpace + " available.");
+                System.exit(1);
+            }
+        }   
           downloadFile(host, port, path, fileName, contentLength);
     }
     private static long sendHeadRequest(String host, int port, String path) throws IOException {
        try( Socket socket = new Socket(host, port)){
         PrintWriter out = new PrintWriter( new OutputStreamWriter(socket.getOutputStream(), "UTF-8"), true);
 
-         out.print("HEAD " + path + " HTTP/1.0\r\n");
+        //sending requests
+         out.print("HEAD " + path + " HTTP/1.0\r\n"); // request head
             out.print("Host: " + host + "\r\n");
             out.print("Connection: close\r\n");
             out.print("\r\n");
@@ -74,7 +83,7 @@ public class Downloader {
 
             OutputStream out = socket.getOutputStream();
             String request =
-                    "GET " + path + " HTTP/1.0\r\n" +
+                    "GET " + path + " HTTP/1.0\r\n" +  // reqeust the file 
                     "Host: " + host + "\r\n" +
                     "Connection: close\r\n" +
                     "\r\n";
