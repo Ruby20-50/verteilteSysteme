@@ -1,0 +1,25 @@
+services:
+  server:
+    image: eclipse-temurin:21-jdk
+    container_name: file_server
+    networks:
+      - transfer_net
+    volumes:
+      - .:/app          # contains MyServer.java
+    working_dir: /app
+    command: sh -c "head -c 500000000 /dev/urandom > file.bin && javac MyServer.java && java MyServer 8088"
+
+  client:
+    image: eclipse-temurin:21-jdk
+    container_name: file_client
+    networks:
+      - transfer_net
+    volumes:
+      - .:/app          # contains MyClient.java
+    working_dir: /app
+    depends_on:
+      - server
+    command: sh -c "javac MyClient.java && mkdir -p downloaded && sleep infinity"
+networks:
+  transfer_net:
+    driver: bridge
