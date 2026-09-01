@@ -6,14 +6,14 @@ das eine Datei zwischen zwei Computern überträgt" (Verteilte Systeme).
 ## Enthaltene Dateien
 
 ```
-filetransfer/
+datei-transfer/
 ├── MyServer.java          Server-Programm
 ├── MyClient.java          Client-Programm
-├── README.md              diese Datei
-└── docker/                optionales lokales Test-Setup
-    ├── docker-compose.yml
-    ├── server/MyServer.java
-    └── client/MyClient.java
+├── TeilE.md              diese Datei
+└── docker/                lokales Test-Setup
+    ├── docker-compose.yml    
+    ├──  MyServer.java
+    └──  MyClient.java
 ```
 
 ## Funktionsweise
@@ -86,6 +86,63 @@ sha1sum file.bin
 Die Hashes müssen übereinstimmen. Aus Genauigkeitsgründen wird das Hashing
 bewusst *nicht* im Java-Code berechnet — eine SHA1-Berechnung über 50 GB ist
 selbst langsam und würde die eigentliche Transferzeitmessung verfälschen.
+
+## Lokales Testen ohne zweiten Rechner
+
+Für Debugging gibt es zwei Optionen, beide **nur zum Testen der Korrektheit**, nicht für die offiziellen
+Messwerte geeignet:
+
+1. **Zwei Terminals, `localhost`** — schnellster Weg, um Bugs zu finden.
+   Läuft aber nur über den Loopback-Adapter, ohne echte Netzwerkkarte,
+   Switch oder reale TCP-Kongestionskontrolle. Die gemessenen Werte sind
+   unrealistisch hoch.
+
+    **Terminal 1 (server):**
+        
+      ```bash
+
+      head -c 50000000000 /dev/urandom > file.bin   
+      javac MyServer.java
+      java MyServer 8088
+      ```
+      
+    **Terminal 2 (client)** in a separate directory so it doesn't overwrite the original:
+
+      ```bash
+
+      mkdir client_side && cd client_side
+      cp ../MyClient.java .
+      javac MyClient.java
+      java MyClient localhost:file.bin
+      ```
+
+### Ergebnis von Terminal test
+
+1. erster Versuch      
+
+    ```$ java MyClient localhost:file.bin
+    Connecting to localhost:8088 for file 'file.bin'
+    Received 50000000000 bytes (47683,72 MB) in 708,232 s  ->  67,33 MB/s
+    ```
+
+2. zweiter Versuch
+
+    ```$ java MyClient localhost:file.bin
+    Connecting to localhost:8088 for file 'file.bin'
+    Received 50000000000 bytes (47683,72 MB) in 625,581 s  ->  76,22 MB/s
+    ```
+3. dritter Vesuch
+    ```$ java MyClient localhost:file.bin
+    Connecting to localhost:8088 for file 'file.bin'
+    Received 50000000000 bytes (47683,72 MB) in 592,681 s  ->  80,45 MB/s
+    ```
+
+  eine mögliche Erklärung ist: das Page-cash spielt hier eine Rolle, indem mehr Daten sind im cach gespeichert, deswegen ist das schneller für jeden weiteren Versuch
+
+
+Für die im LMS einzutragenden Ergebnisse und die Live-Demonstration sind
+**zwei separate physische Rechner im Übungsraum** erforderlich, wie in der
+Aufgabenstellung explizit gefordert.
 
 ## Zu erklärende Mechanismen (für die Bonuspunkte-Demo)
 
