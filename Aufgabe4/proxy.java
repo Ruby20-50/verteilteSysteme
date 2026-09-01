@@ -42,6 +42,7 @@ public class proxy {
             // --- 2. parse the request line, e.g. "GET /appA/logo.svg HTTP/1.1" ---
             String[] lines = headerText.split("\r\n");
             String[] reqLine = lines[0].split(" ");
+
             String method  = reqLine[0];
             String path    = reqLine[1];
             String version = reqLine[2];
@@ -49,29 +50,43 @@ public class proxy {
             // --- 3. pick the backend and rewrite the path (A3) ---
             String targetHost;
             String newPath;
-            if (path.equals("/appA") || path.startsWith("/appA/")) {
+            if (path.equals("/") || path.startsWith("/appA/")) {
                 targetHost = APP_A_HOST;
-                newPath = path.substring("/appA".length());
+                newPath = path.substring("/".length());
+
             } else if (path.equals("/appB") || path.startsWith("/appB/")) {
                 targetHost = APP_B_HOST;
                 newPath = path.substring("/appB".length());
+
             } else {
                 clientOut.write("HTTP/1.1 404 Not Found\r\n\r\n".getBytes());
                 return;
             }
+
             if (newPath.isEmpty()) newPath = "/";
 
             // --- 4. rebuild the request: new path, rewritten Host (A4), forced close ---
-            StringBuilder req = new StringBuilder();
-            req.append(method).append(" ").append(newPath).append(" ").append(version).append("\r\n");
+            StringBuilder req = new StringBuilder(); 
+            req.append(method)
+            .append(" ")
+            .append(newPath)
+            .append(" ")
+            .append(version)
+            .append("\r\n");
+
             for (int i = 1; i < lines.length; i++) {
                 String line = lines[i];
+
                 if (line.isEmpty()) continue;
+
                 String lower = line.toLowerCase();
                 if (lower.startsWith("host:")) {
                     req.append("Host: ").append(targetHost).append("\r\n");
-                } else if (lower.startsWith("connection:") || lower.startsWith("proxy-connection:")) {
-                    // drop it — we set our own below
+
+                } else if (lower.startsWith("connection:")
+                     || lower.startsWith("proxy-connection:")) {
+
+                    // drop it 
                 } else {
                     req.append(line).append("\r\n");
                 }

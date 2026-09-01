@@ -1,0 +1,95 @@
+services:
+  hostA:
+    hostname: hostA
+    image: alpine:latest
+    tty: true
+    restart: always
+    cap_add:
+    - NET_ADMIN
+    networks:
+      networkA:
+       ipv4_address: 192.168.0.10
+    
+  hostC:
+    hostname: hostC
+    image: alpine:latest
+    tty: true
+    restart: always
+    cap_add:
+    - NET_ADMIN
+    networks:
+      networkC:
+        ipv4_address: 10.0.0.10
+
+  hostD:
+    hostname: hostD
+    image: alpine:latest
+    tty: true
+    restart: always
+    cap_add:
+    - NET_ADMIN
+    networks:
+      networkD:
+        ipv4_address: 172.33.0.10
+
+
+  routerAB:
+    hostname: routerAB
+    image: alpine:latest
+    tty: true
+    restart: always
+    cap_add:
+    - NET_ADMIN
+    sysctls:
+    - net.ipv4.ip_forward=1 #here is the edit 
+    networks:
+      networkA:    
+        ipv4_address: 192.168.0.2
+      networkB:
+        ipv4_address: 172.44.0.2
+
+  routerBCD:
+    hostname: routerBCD
+    image: alpine:latest
+    tty: true
+    restart: always
+    cap_add:
+    - NET_ADMIN
+    sysctls:
+    - net.ipv4.ip_forward=1 #here is the edit
+    networks:
+      networkB:
+        ipv4_address: 172.44.0.3
+      networkC:    
+        ipv4_address: 10.0.0.2
+      networkD:    
+        ipv4_address: 172.33.0.3
+
+networks:
+  networkA:
+    name: networkA
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.0.0/16
+
+  networkB:
+    name: networkB
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.44.0.0/16
+
+  networkC:
+    name: networkC
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.0.0.0/8
+
+  networkD:
+    name: networkD
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.33.0.0/16

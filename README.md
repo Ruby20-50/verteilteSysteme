@@ -1,93 +1,115 @@
 # Verteilte Systeme
 
+Coursework for the **Verteilte Systeme** (Distributed Systems) module. Four assignments (`Aufgabe1`–`Aufgabe4`) covering networking fundamentals, raw-socket file transfer, HTTP internals, and reverse proxying / IP routing with Docker.
 
+Each assignment folder contains the written answers (`teil_*.md` / `Teil*.md`), plus source code and configs where applicable.
 
-## Getting started
+## Contents
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+- [Aufgabe1 — Network Fundamentals](#aufgabe1--network-fundamentals)
+- [Aufgabe2 — Socket-Based File Transfer & Time Protocol](#aufgabe2--socket-based-file-transfer--time-protocol)
+- [Aufgabe3 — HTTP Internals & Raw-Socket Downloader](#aufgabe3--http-internals--raw-socket-downloader)
+- [Aufgabe4 — Reverse Proxy & Docker IP Routing](#aufgabe4--reverse-proxy--docker-ip-routing)
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+---
 
-## Add your files
+## Aufgabe1 — Network Fundamentals
 
-* [Create](https://docs.gitlab.com/user/project/repository/web_editor/#create-a-file) or [upload](https://docs.gitlab.com/user/project/repository/web_editor/#upload-a-file) files
-* [Add files using the command line](https://docs.gitlab.com/topics/git/add_files/#add-files-to-a-git-repository) or push an existing Git repository with the following command:
+### Teil A — Physical Network Setup (`teil_A.md`)
 
-```
-cd existing_repo
-git remote add origin https://gitlab.bht-berlin.de/rumo9613/verteilte-systeme.git
-git branch -M main
-git push -uf origin main
-```
+Documentation of integrating an `operator` machine (keyboard, screen, blue network cables) into an existing lab topology of two switches and two client machines (`client1`, `client2`), including which components were connected and over which ports.
 
-## Integrate with your tools
+### Teil B — Verifying the Network Configuration (`teil_B.md`)
 
-* [Set up project integrations](https://gitlab.bht-berlin.de/rumo9613/verteilte-systeme/-/settings/integrations)
+- `ip link` / `ip address` output analysis on the operator machine: loopback vs. Ethernet (`eno1`) vs. Wi-Fi (`wlo2`) interfaces — MTU, qdisc (`noqueue`, `fq_codel`, `noop`), link state flags (`UP`/`LOWER_UP`/`DOWN`), MAC and broadcast addresses, and assigned IPv4/IPv6 addresses.
+- Reachability tests via `ping` from operator to client1, with measured round-trip times (min/avg/max/mdev) and packet loss.
 
-## Collaborate with your team
+### Teil C — client1 ↔ client2 Connectivity via SSH (`teil_C.md`)
 
-* [Invite team members and collaborators](https://docs.gitlab.com/user/project/members/)
-* [Create a new merge request](https://docs.gitlab.com/user/project/merge_requests/creating_merge_requests/)
-* [Automatically close issues from merge requests](https://docs.gitlab.com/user/project/issues/managing_issues/#closing-issues-automatically)
-* [Enable merge request approvals](https://docs.gitlab.com/user/project/merge_requests/approvals/)
-* [Set auto-merge](https://docs.gitlab.com/user/project/merge_requests/auto_merge/)
+Investigates whether client1 can reach client2 directly, without a monitor/keyboard attached to either, by SSH-ing from the operator into client1, then running `ping` against client2 from there to confirm reachability.
 
-## Test and Deploy
+### Teil D — Large File Transfer Experiment (`teil_D.md`)
 
-Use the built-in continuous integration in GitLab.
+- A ~19 GB test file (`head -c 20000000000 /dev/urandom > file.bin`) generated on client1, with a reasoned time estimate for transferring it to client2.
+- Transfer method chosen: `rsync` (over `scp`), run three times under similar conditions with measured times (~11s, ~3m5s, ~3m14s).
+- Discussion of the variance between runs: network contention from concurrent transfers and possible disk-utilization effects on client2.
 
-* [Get started with GitLab CI/CD](https://docs.gitlab.com/ci/quick_start/)
-* [Analyze your code for known vulnerabilities with Static Application Security Testing (SAST)](https://docs.gitlab.com/user/application_security/sast/)
-* [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/topics/autodevops/requirements/)
-* [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/user/clusters/agent/)
-* [Set up protected environments](https://docs.gitlab.com/ci/environments/protected_environments/)
+### Teil E — File Integrity (`teil_E.md`)
 
-***
+- Discussion of whether comparing file sizes alone is a reliable integrity check (it isn't, because it can't detect same-size corruption).
+- Answers to E1–E3 based on Ross Williams' CRC article: the purpose of a checksum, why it must be computed independently on both sender and receiver, and the role of the "avalanche"/chaos property in making checksum errors obvious.
 
-# Editing this README
+### Teil F — Paper Reading: TeraScale SneakerNet (`teil_F.md`)
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thanks to [makeareadme.com](https://www.makeareadme.com/) for this template.
+Answers on Gray et al.'s *"TeraScale SneakerNet"* report: the problem of efficiently moving terabyte-scale datasets, the solutions evaluated (next-gen internet, CDs, tape, disk bricks), why the authors recommend disk bricks (parallel writes, reusability, self-contained recovery metadata), and the meaning of Tanenbaum's "station wagon full of tapes".
 
-## Suggestions for a good README
+### Teil G — Video Analysis: Latency, Bandwidth & Sneakernet (`teil_G.md`, optional/ungraded)
 
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+Notes on the factors that determine effective network transfer speed (connection stability, bandwidth, file size limits) and on when physical transport of storage media can outperform a network transfer for very large datasets.
 
-## Name
-Choose a self-explaining name for your project.
+## Aufgabe2 — IP Routing, Time Protocol & Socket-Based File Transfer
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+### Teil A — traceroute & Wireshark (`TeilA.md`)
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+Covers `traceroute`/`tracert` fundamentals against a public host: what the tool does and how to read its output, the Wireshark display filter for isolating a traceroute run by server address, which ICMP packet types are involved, the role of the IPv4 TTL field, and which of traceroute's on-screen numbers (hop count, IP addresses, timings) can be cross-checked directly in Wireshark.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+### Teil B — Router & DHCP Setup (`TeilB.md`)
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+A hands-on lab exercise connecting two subnets (LAN1, LAN2) through a router with two NICs: assigning static IPs to the router's interfaces, configuring `isc-dhcp-server` (`/etc/dhcp/dhcpd.conf`) to serve both subnets, switching the two client machines to DHCP via Netplan, and enabling `net.ipv4.ip_forward` so the router forwards packets between LAN1 and LAN2 then verified with `ping` and `traceroute` across the two networks.
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+### Teil C — RFC 868 Time Protocol Reading (`TeilC.md`)
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+Questions on the Time Protocol specification: its purpose, which transport-layer protocols it uses, the server port, what the client must send, what the server returns, how time zones are handled, and possible sources of inaccuracy.
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+### Teil D — UDP Time Protocol Client (`TeilD.md`, `TimeClient.java`)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+A socket-based UDP client implementing RFC 868: takes a server hostname as a command-line argument, sends an empty datagram to port 37, parses the 32-bit seconds-since-1900 response using only `java.nio.channels.DatagramChannel`, converts it to Unix time, and prints the date and time for `Europe/Berlin` in the required `YYYY-MM-DD` / `HH:mm:ss` format.
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+### Teil E — Socket-Based File Transfer Server & Client (`TeilE.md`, `MyServer.java`, `MyClient.java`)
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+- **`MyServer.java`** — listens on a port passed as a command-line argument, reads a requested filename, and streams the file back in 4 MB chunks using `Socket`-based I/O (no `scp`/`ftp`/`rsync`).
+- **`MyClient.java`** — takes `server:filename` as an argument, connects via `SocketChannel`, and receives the file using zero-copy `FileChannel.transferFrom`, timing the transfer from request to last byte received.
+- Built to satisfy the assignment's requirements: single concurrent client, no encryption/auth required, and file integrity verifiable via matching SHA-1/MD5 hashes on both ends.
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+### Teil F — Talk/Paper Reading: SSD Random Reads (`TeilF.md`)
 
-## License
-For open source projects, say how it is licensed.
+Notes on Thomas Knauth's LISA 2013 talk/paper: the problem the authors address, shortcomings of existing tools they identify, and the surprising finding about random read performance on SSDs.
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+> Note: `TeilA.md`–`TeilF.md` are currently empty placeholders — the write-ups above summarize the assignment prompts; your actual answers still need to be filled in for Teil A, B, C, and F (Teil D and E already have working code).
+
+## Aufgabe3 — HTTP Internals & Raw-Socket Downloader
+
+### Teil A — HTTP Server & Client (`aufgabe03-teil-a.md`, `docker-compose-1.yaml`)
+
+- **`docker-compose-1.yaml`** — spins up a `vs-info` container that answers HTTP requests with a page detailing the full request (headers, client/server addresses).
+- Written answers analyze that page and a Wireshark capture of the same traffic: identifying which side is server vs. client and why their address values differ (Docker's virtual network / NAT through the gateway), the meaning of the first two `Request Headers` lines plus two additional header lines (`Connection: keep-alive`, `Accept-Encoding`), and cross-checking the browser-displayed headers against Wireshark's capture.
+- A follow-up comparison between requesting `http://localhost:8088/` and `http://127.0.0.1:8088/`: what changes and why, what happens on rapid successive reloads vs. reloading after a 30-second gap (kept-alive TCP connection vs. a fresh client port), and how a Shift+Reload forces a cache-busting request (`Cache-Control: no-cache`, `Pragma: no-cache`).
+
+### Teil B — Raw-Socket HTTP Downloader (`Downloader.java`)
+
+- A command-line HTTP downloader built entirely on raw `Socket`s — no `curl`/`wget`, no HTTP library. The target URI is passed as a command-line argument and manually parsed into host, port (80), and path.
+- Before downloading, it sends a `HEAD` request to read `Content-Length` and compares it against available disk space (`File.getFreeSpace()`), aborting if there isn't enough room.
+- The actual download uses a `GET` request; the response status line and headers are parsed byte-by-byte to detect the header/body boundary, then the body is streamed to a file in the current working directory with a live 0–100% progress indicator printed to the console.
+
+### Teil C — Paper Reading: ST-TCP (`aufgabe03-teil-c.md`)
+
+Questions on *"TCP Server Fault Tolerance Using Connection Migration to a Backup Server"* (Marwah, Mishra, Fetzer): the problem ST-TCP addresses (TCP's intolerance to server failure), what an active backup server is and how it detects primary-server failure (performance failure vs. crash failure), what "tapping TCP traffic" means and why switched Ethernet makes plain tapping impractical (port mirroring instead), how ST-TCP's failover compares to FT-TCP's, and the purpose of the power switch in the paper's system architecture diagram.
+
+## Aufgabe4 — Reverse Proxy & Docker IP Routing
+
+### Teil A — Reverse Proxy (`aufgabe4-teil-a.md`, `proxy.java`, `Dockerfile`)
+
+- **`proxy.java`** — a path-based HTTP reverse proxy in plain Java sockets (one thread per connection). Routes `/appA/*` and `/appB/*` requests to two separate backend containers (`vs-app-a`, `vs-app-b`), strips the path prefix before forwarding, rewrites the `Host` header per backend, and relays the raw response back to the client.
+- **`Dockerfile`** — a minimal multi-stage build (Alpine + Eclipse Temurin JDK/JRE) that compiles and packages `proxy.java` into a lightweight runtime image.
+- Written answers (A1–A4) cover: which ports the proxy uses to reach each backend app, how the proxy resolves the two apps' addresses via Docker's built-in DNS on the shared `proxynet` network (instead of hardcoded IPs), how the requested path must be rewritten (stripping `/appA` or `/appB`) so it's valid from each backend's own point of view, and why the `Host` header must be rewritten to the backend's hostname so the app doesn't reject the request.
+- A short comparison of reverse proxy concerns (load distribution, hiding backend exposure, avoiding repeated work, cross-cutting concerns like TLS termination) versus forward proxy concerns (client-side policy control, shared caching, privacy/identity hiding).
+
+### Teil B — Docker IP Routing (`aufgabe4-teil-b.md`, `docker-compose-routing.yml`)
+
+- **`docker-compose-routing.yml`** — a multi-network Docker topology: three hosts (`hostA`, `hostC`, `hostD`) each on their own isolated network, connected through two routers (`routerAB`, `routerBCD`) that bridge the networks and have `net.ipv4.ip_forward` enabled.
+- Commands and notes for configuring routing by hand inside each container: enabling `net.ipv4.ip_forward` on the routers, adding routes with `ip route add <destination-network> via <next-hop>` on both routers and hosts, and inspecting the routing table with `ip route`.
+- Verification of end-to-end connectivity across the routed topology using `ping` and `traceroute` from `hostD` to a host on a different subnet.
+
+---
+
+*Coursework at BHT Berlin — answers and code are original work submitted for the Verteilte Systeme module.*
