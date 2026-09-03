@@ -1,13 +1,13 @@
 # Verteilte Systeme
 
-Coursework for the **Verteilte Systeme** (Distributed Systems) module. Four assignments (`Aufgabe1`–`Aufgabe4`) covering networking fundamentals, raw-socket file transfer, HTTP internals, and reverse proxying / IP routing with Docker.
+Coursework for the **Verteilte Systeme** (Distributed Systems) module. Four assignments (`Aufgabe1`–`Aufgabe4`) covering networking fundamentals, socket-based file transfer, HTTP internals, and reverse proxying / IP routing with Docker.
 
-Each assignment folder contains the written answers (`teil_*.md` / `Teil*.md`), plus source code and configs where applicable.
+Each assignment folder contains the written answers (`teil_*.md` / `Teil*.md`), plus source code and configuration files where applicable.
 
 ## Contents
 
 - [Aufgabe1 — Network Fundamentals](#aufgabe1--network-fundamentals)
-- [Aufgabe2 — Socket-Based File Transfer & Time Protocol](#aufgabe2--socket-based-file-transfer--time-protocol)
+- [Aufgabe2 — IP Routing, Time Protocol & Socket-Based File Transfer](#aufgabe2--ip-routing-time-protocol--socket-based-file-transfer)
 - [Aufgabe3 — HTTP Internals & Raw-Socket Downloader](#aufgabe3--http-internals--raw-socket-downloader)
 - [Aufgabe4 — Reverse Proxy & Docker IP Routing](#aufgabe4--reverse-proxy--docker-ip-routing)
 
@@ -15,101 +15,109 @@ Each assignment folder contains the written answers (`teil_*.md` / `Teil*.md`), 
 
 ## Aufgabe1 — Network Fundamentals
 
-### Teil A — Physical Network Setup (`teil_A.md`)
+Hands-on lab work on physical setup, interface inspection, connectivity testing, bulk transfer, and integrity — plus two paper/video analyses.
 
-Documentation of integrating an `operator` machine (keyboard, screen, blue network cables) into an existing lab topology of two switches and two client machines (`client1`, `client2`), including which components were connected and over which ports.
+**Teil A — Physical setup (`teil_A.md`).** 
 
-### Teil B — Verifying the Network Configuration (`teil_B.md`)
+Documents how the `operator` machine (keyboard, monitor, network cable) was integrated into the lab topology shared with `client1`/`client2` via the switch.
 
-- `ip link` / `ip address` output analysis on the operator machine: loopback vs. Ethernet (`eno1`) vs. Wi-Fi (`wlo2`) interfaces — MTU, qdisc (`noqueue`, `fq_codel`, `noop`), link state flags (`UP`/`LOWER_UP`/`DOWN`), MAC and broadcast addresses, and assigned IPv4/IPv6 addresses.
-- Reachability tests via `ping` from operator to client1, with measured round-trip times (min/avg/max/mdev) and packet loss.
+**Teil B — Interface inspection & reachability (`teil_B.md`).** 
 
-### Teil C — client1 ↔ client2 Connectivity via SSH (`teil_C.md`)
+`ip link`
+/ `ip address` analysis of the operator's loopback, Ethernet (`eno1`), and Wi-Fi (`wlo2`) interfaces (MTU, qdisc, link-state flags, MAC/IP addressing), followed by a `ping` test to client1 (0% loss, 0.416/0.550/0.745 ms min/avg/max). 
 
-Investigates whether client1 can reach client2 directly, without a monitor/keyboard attached to either, by SSH-ing from the operator into client1, then running `ping` against client2 from there to confirm reachability.
+**Teil C — client1 ↔ client2 via SSH (`teil_C.md`).**
 
-### Teil D — Large File Transfer Experiment (`teil_D.md`)
+ SSHes from the operator into client1 (no monitor/keyboard on the client itself), then runs `ping` from inside that session to confirm client1 can reach client2 directly. 
 
-- A ~19 GB test file (`head -c 20000000000 /dev/urandom > file.bin`) generated on client1, with a reasoned time estimate for transferring it to client2.
-- Transfer method chosen: `rsync` (over `scp`), run three times under similar conditions with measured times (~11s, ~3m5s, ~3m14s).
-- Discussion of the variance between runs: network contention from concurrent transfers and possible disk-utilization effects on client2.
+**Teil D — Large-file transfer experiment (`teil_D.md`).**
 
-### Teil E — File Integrity (`teil_E.md`)
+ A ~19 GB test file is generated and a transfer-time estimate is reasoned out in advance; `rsync` is chosen as the transfer tool. Three runs are measured (~10.8 s, ~3 m 5 s, ~3 m 14 s) and the variance is explained via network contention and possible disk-utilization effects on the receiving side.
 
-- Discussion of whether comparing file sizes alone is a reliable integrity check (it isn't, because it can't detect same-size corruption).
-- Answers to E1–E3 based on Ross Williams' CRC article: the purpose of a checksum, why it must be computed independently on both sender and receiver, and the role of the "avalanche"/chaos property in making checksum errors obvious.
+**Teil E — File integrity (`teil_E.md`).**
 
-### Teil F — Paper Reading: TeraScale SneakerNet (`teil_F.md`)
+Argues that file-size comparison alone is not a reliable integrity check, then answers E1–E3 on checksum purpose, why both sides must compute it independently, and the role of the avalanche/"chaos" property in making corruption obvious.
 
-Answers on Gray et al.'s *"TeraScale SneakerNet"* report: the problem of efficiently moving terabyte-scale datasets, the solutions evaluated (next-gen internet, CDs, tape, disk bricks), why the authors recommend disk bricks (parallel writes, reusability, self-contained recovery metadata), and the meaning of Tanenbaum's "station wagon full of tapes".
+**Teil F — Paper reading: TeraScale SneakerNet (`teil_F.md`).** A
 
-### Teil G — Video Analysis: Latency, Bandwidth & Sneakernet (`teil_G.md`, optional/ungraded)
+Answers on efficiently moving terabyte-scale datasets: the four approaches evaluated, why disk bricks are recommended, and the meaning of Tanenbaum's "station wagon full of tapes."
 
-Notes on the factors that determine effective network transfer speed (connection stability, bandwidth, file size limits) and on when physical transport of storage media can outperform a network transfer for very large datasets.
+**Teil G — Video analysis (`teil_G.md`).** 
+
+Notes on the factors governing effective transfer speed (stability, bandwidth, file-size limits) and when physical media transport outperforms network transfer at very large data volumes. 
 
 ## Aufgabe2 — IP Routing, Time Protocol & Socket-Based File Transfer
 
-### Teil A — traceroute & Wireshark (`TeilA.md`)
+**Teil A — traceroute & Wireshark (`TeilA.md`).** 
+Question set on what `traceroute` does, the Wireshark filter to isolate a traceroute run by server address, the ICMP packet types involved, the role of the IPv4 TTL field, and how traceroute's on-screen output maps to Wireshark's capture.
 
-Covers `traceroute`/`tracert` fundamentals against a public host: what the tool does and how to read its output, the Wireshark display filter for isolating a traceroute run by server address, which ICMP packet types are involved, the role of the IPv4 TTL field, and which of traceroute's on-screen numbers (hop count, IP addresses, timings) can be cross-checked directly in Wireshark.
+**Teil B — Router & DHCP setup (`TeilB.md`).**
+ Connects two subnets (LAN1, LAN2) through a router with two NICs: static IPs assigned to therouter's interfaces (`ip addr add` / `ip link set ... up`), `isc-dhcp-server` configured with a `subnet` block per LAN in `/etc dhcp/dhcpd.conf`, the two client machines switched to DHCP via Netplan (`dhcp4: true`, applied safely with `netplan try`), and `net.ipv4.ip_forward=1` enabled so the router actually forwards traffic between the two LANs — verified afterwards with `ping`/`traceroute` across the router. Complete, including a practical note on locating a client's new DHCP-assigned IP via the lease file or the operator console.
 
-### Teil B — Router & DHCP Setup (`TeilB.md`)
+**Teil C — RFC 868 Time Protocol (`TeilC.md`).**
 
-A hands-on lab exercise connecting two subnets (LAN1, LAN2) through a router with two NICs: assigning static IPs to the router's interfaces, configuring `isc-dhcp-server` (`/etc/dhcp/dhcpd.conf`) to serve both subnets, switching the two client machines to DHCP via Netplan, and enabling `net.ipv4.ip_forward` so the router forwards packets between LAN1 and LAN2 then verified with `ping` and `traceroute` across the two networks.
+ Answers on the protocol's purpose (machine-readable time sync), its use of both TCP and UDP on port 37, the 32-bit binary response format, GMT-only time handling, and accuracy limitations (unaccounted latency, whole-second resolution, the 2036 overflow).
 
-### Teil C — RFC 868 Time Protocol Reading (`TeilC.md`)
+**Teil D — UDP `TimeClient` (`TeilD.md`, `TimeClient.java`).** 
 
-Questions on the Time Protocol specification: its purpose, which transport-layer protocols it uses, the server port, what the client must send, what the server returns, how time zones are handled, and possible sources of inaccuracy.
+A NIO-based UDP client implementing RFC 868 in Java:
+- Takes the server hostname as a CLI argument and opens a blocking **`DatagramChannel`**.
+- Sends an empty datagram to port 37 (the RFC-correct request format for this protocol) and reads exactly 4 response bytes.
+- Uses `Integer.toUnsignedLong(...)` on the parsed `int` — the key correctness fix that avoids a Year-2036 overflow a naive signed read would hit once the seconds-since-1900 count exceeds `2^31`.
+- `ByteBuffer` defaults to big-endian (network byte order), so no manual byte-swapping is needed.
+- Converts to Unix epoch via the standard 1900→1970 offset (`2208988800L`), then to `Europe/Berlin` local time via `Instant`/`ZonedDateTime` (correctly handling DST), using only JDK standard-library classes.
+- Prints the date and time on two lines in the required `YYYY-MM-DD` / `HH:mm:ss` format.
+- Tested against `time.nist.gov`, with a note that NIST throttles rapid repeat requests. 
 
-### Teil D — UDP Time Protocol Client (`TeilD.md`, `TimeClient.java`)
+**Teil E — Socket-based file transfer, `Datei-Transfer/` (`TeilE.md`, `MyServer.java`, `MyClient.java`).** a zero-copy TCP file-transfer system built to move a
+50 GB file as fast as possible.
 
-A socket-based UDP client implementing RFC 868: takes a server hostname as a command-line argument, sends an empty datagram to port 37, parses the 32-bit seconds-since-1900 response using only `java.nio.channels.DatagramChannel`, converts it to Unix time, and prints the date and time for `Europe/Berlin` in the required `YYYY-MM-DD` / `HH:mm:ss` format.
+- **Design:** Java NIO (`FileChannel`, `SocketChannel`) throughout; the core mechanism is `FileChannel.transferTo()` `transferFrom()`, which on Linux maps to the **`sendfile()`** syscall — the kernel moves bytes directly from the page cache into the socket buffer without ever entering the JVM heap. Complemented by 8 MB socket send/receive buffers (vs. the OS default 64–128 KB) and `TCP_NODELAY` to disable Nagle's algorithm.
 
-### Teil E — Socket-Based File Transfer Server & Client (`TeilE.md`, `MyServer.java`, `MyClient.java`)
+- **Protocol:** client connects on port 8088, sends the filename as a newline-terminated line; server replies with an 8-byte length header (`-1` if not found) then streams the file via `transferTo()`; client writes incoming bytes straight to disk via `transferFrom()`; timing runs from request sent to last byte written.
 
-- **`MyServer.java`** — listens on a port passed as a command-line argument, reads a requested filename, and streams the file back in 4 MB chunks using `Socket`-based I/O (no `scp`/`ftp`/`rsync`).
-- **`MyClient.java`** — takes `server:filename` as an argument, connects via `SocketChannel`, and receives the file using zero-copy `FileChannel.transferFrom`, timing the transfer from request to last byte received.
-- Built to satisfy the assignment's requirements: single concurrent client, no encryption/auth required, and file integrity verifiable via matching SHA-1/MD5 hashes on both ends.
+- **Testing:** 
 
-### Teil F — Talk/Paper Reading: SSD Random Reads (`TeilF.md`)
+1. a localhost run against the full 50 GB file (three passes, 67 → 76 → 80 MB/s, attributed to page-cache warm-up) with matching SHA-1 checksums; 
 
-Notes on Thomas Knauth's LISA 2013 talk/paper: the problem the authors address, shortcomings of existing tools they identify, and the surprising finding about random read performance on SSDs.
+2. a Docker Compose run (two containers on a bridge network, exercising the full TCP/IP stack and Docker DNS) against a scaled-down 500 MB file (~22 MB/s, slower mainly due to the WSL2↔Windows filesystem bridge used for the project volume), again with matching SHA-1 hashes confirming a correct transfer. Official benchmark numbers for submission require the two physical lab machines, as specified in the assignment.
 
-> Note: `TeilA.md`–`TeilF.md` are currently empty placeholders — the write-ups above summarize the assignment prompts; your actual answers still need to be filled in for Teil A, B, C, and F (Teil D and E already have working code).
+**Teil F — Paper reading: `dsync` (`TeilF.md`).** Summary of Knauth & Fetzer's USENIX LISA '13 paper on efficient periodic synchronization of large binary datasets (e.g. replicated VM disks): 
+why full-copy and checksum-based diffing (à la `rsync`) both waste resources, how `dsync` tracks changes at the block level via a Device Mapper extension instead, `rsync`'s three named weaknesses (disk I/O, CPU cost, page-cache
+pollution), and the surprising finding that sorted SSD block access can be up to 10× faster than unsorted access to the same blocks.
 
 ## Aufgabe3 — HTTP Internals & Raw-Socket Downloader
 
-### Teil A — HTTP Server & Client (`aufgabe03-teil-a.md`, `docker-compose-1.yaml`)
+**Docker setup (`docker-compose-1.yaml`).** 
 
-- **`docker-compose-1.yaml`** — spins up a `vs-info` container that answers HTTP requests with a page detailing the full request (headers, client/server addresses).
-- Written answers analyze that page and a Wireshark capture of the same traffic: identifying which side is server vs. client and why their address values differ (Docker's virtual network / NAT through the gateway), the meaning of the first two `Request Headers` lines plus two additional header lines (`Connection: keep-alive`, `Accept-Encoding`), and cross-checking the browser-displayed headers against Wireshark's capture.
-- A follow-up comparison between requesting `http://localhost:8088/` and `http://127.0.0.1:8088/`: what changes and why, what happens on rapid successive reloads vs. reloading after a 30-second gap (kept-alive TCP connection vs. a fresh client port), and how a Shift+Reload forces a cache-busting request (`Cache-Control: no-cache`, `Pragma: no-cache`).
+Runs a single `vs-info` service from the course registry, exposed on host port 8088.
 
-### Teil B — Raw-Socket HTTP Downloader (`Downloader.java`)
+**Teil A — HTTP headers & browser behavior (`aufgabe03-teil-a.md`).**
 
-- A command-line HTTP downloader built entirely on raw `Socket`s — no `curl`/`wget`, no HTTP library. The target URI is passed as a command-line argument and manually parsed into host, port (80), and path.
-- Before downloading, it sends a `HEAD` request to read `Content-Length` and compares it against available disk space (`File.getFreeSpace()`), aborting if there isn't enough room.
-- The actual download uses a `GET` request; the response status line and headers are parsed byte-by-byte to detect the header/body boundary, then the body is streamed to a file in the current working directory with a live 0–100% progress indicator printed to the console.
+Analysis of the `vs-info` page and a matching Wireshark capture:
+identifies server vs. client and explains why their addresses differ (Docker's virtual network / NAT through the bridge gateway), explains the request-line and `Host:` header plus two further headers (`Connection: keep-alive`, `Accept-Encoding`), compares `localhost:8088` vs `127.0.0.1:8088`, and explains reload behavior (kept-alive connection on rapid reloads vs. a fresh client port after a gap) and Shift+Reload's cache-busting headers (`Cache-Control`/`Pragma: no-cache`). Complete.
 
-### Teil C — Paper Reading: ST-TCP (`aufgabe03-teil-c.md`)
+**Teil B — `Downloader.java` (raw-socket HTTP client).**
 
-Questions on *"TCP Server Fault Tolerance Using Connection Migration to a Backup Server"* (Marwah, Mishra, Fetzer): the problem ST-TCP addresses (TCP's intolerance to server failure), what an active backup server is and how it detects primary-server failure (performance failure vs. crash failure), what "tapping TCP traffic" means and why switched Ethernet makes plain tapping impractical (port mirroring instead), how ST-TCP's failover compares to FT-TCP's, and the purpose of the power switch in the paper's system architecture diagram.
+A command-line HTTP downloader built entirely on raw `java.net.Socket` connections — no `HttpURLConnection`, no third-party HTTP library, no `curl`/`wget`. 
+- Manually parses the target URL into scheme (`http://` only — HTTPS rejected), host, path, and a hardcoded port 80.
+- Sends a `HEAD` request first to read `Content-Length` and compares it against `new File(".").getFreeSpace()`, aborting if there isn't enough disk space.
+- Performs the actual transfer with a `GET` request; the response is parsed **byte-by-byte** (not line-by-line, to avoid a `BufferedReader` swallowing bytes that belong to the binary body) up to the literal `\r\n\r\n` header/body boundary, then the body is streamed to disk in 8192-byte chunks with a live 0–100% progress indicator.
+- Verified against a real file (`BelWue_logo.svg`) from `speedtest.belwue.net`. Complete, with one documented deviation from the assignment's example code (`new File(".").getFreeSpace()` instead of `new  File("/").getFreeSpace()`, argued as more correct since the file is written to the working directory).
+
+**Teil C — Paper reading: ST-TCP (`aufgabe03-teil-c.md`).** 
+
+*"TCP Server Fault Tolerance Using Connection Migration to a Backup Server"*: the problem ST-TCP addresses (TCP's intolerance of server failure), what an active backup server is and how it distinguishes performance failure from crash failure, what "tapping TCP traffic" means and why switched Ethernet requires port mirroring to do it, how ST-TCP's failover compares to FT-TCP's, and the purpose of the power switch in the paper's system architecture.
 
 ## Aufgabe4 — Reverse Proxy & Docker IP Routing
 
-### Teil A — Reverse Proxy (`aufgabe4-teil-a.md`, `proxy.java`, `Dockerfile`)
+**Teil A — Reverse proxy (`aufgabe4-teil-a.md`, `proxy.java`, `Dockerfile`).**
+- **`proxy.java`** — a path-based HTTP reverse proxy in plain Java sockets, one thread per connection. Routes `/appA/*` (and `/`) to backend `vs-app-a` and `/appB/*` to `vs-app-b`, resolving both via Docker's built-in DNS on the shared `proxynet` network rather than hardcoded IPs. Before forwarding, it strips the path prefix so each backend sees a request valid from its own point of view, rewrites the `Host:` header to the backend's hostname (required since the backend apps reject requests whose `Host` doesn't match their own name), drops incoming `Connection`/`Proxy-Connection` headers, and relays the raw response back to the client byte-for-byte (works for text and binary alike).
+- **`Dockerfile`** — a multi-stage build: an Alpine + Eclipse Temurin **JDK** stage compiles `proxy.java`; a separate, much smaller **JRE** stage copies only the compiled `.class` file and runs it, keeping the final image minimal.
+- Written answers (A1–A4) cover the port each backend listens on, DNS resolution via `proxynet`, path-prefix rewriting, and `Host` header rewriting — plus a short comparison of reverse-proxy concerns (scaling, hiding backend exposure, avoiding repeated work, cross-cutting concerns like TLS termination) versus forward-proxy concerns (client-side policy, shared caching, privacy).
 
-- **`proxy.java`** — a path-based HTTP reverse proxy in plain Java sockets (one thread per connection). Routes `/appA/*` and `/appB/*` requests to two separate backend containers (`vs-app-a`, `vs-app-b`), strips the path prefix before forwarding, rewrites the `Host` header per backend, and relays the raw response back to the client.
-- **`Dockerfile`** — a minimal multi-stage build (Alpine + Eclipse Temurin JDK/JRE) that compiles and packages `proxy.java` into a lightweight runtime image.
-- Written answers (A1–A4) cover: which ports the proxy uses to reach each backend app, how the proxy resolves the two apps' addresses via Docker's built-in DNS on the shared `proxynet` network (instead of hardcoded IPs), how the requested path must be rewritten (stripping `/appA` or `/appB`) so it's valid from each backend's own point of view, and why the `Host` header must be rewritten to the backend's hostname so the app doesn't reject the request.
-- A short comparison of reverse proxy concerns (load distribution, hiding backend exposure, avoiding repeated work, cross-cutting concerns like TLS termination) versus forward proxy concerns (client-side policy control, shared caching, privacy/identity hiding).
-
-### Teil B — Docker IP Routing (`aufgabe4-teil-b.md`, `docker-compose-routing.yml`)
-
-- **`docker-compose-routing.yml`** — a multi-network Docker topology: three hosts (`hostA`, `hostC`, `hostD`) each on their own isolated network, connected through two routers (`routerAB`, `routerBCD`) that bridge the networks and have `net.ipv4.ip_forward` enabled.
-- Commands and notes for configuring routing by hand inside each container: enabling `net.ipv4.ip_forward` on the routers, adding routes with `ip route add <destination-network> via <next-hop>` on both routers and hosts, and inspecting the routing table with `ip route`.
-- Verification of end-to-end connectivity across the routed topology using `ping` and `traceroute` from `hostD` to a host on a different subnet.
-
----
-
-*Coursework at BHT Berlin — answers and code are original work submitted for the Verteilte Systeme module.*
+**Teil B — Docker IP routing (`aufgabe4-teil-b.md` `docker-compose-routing.yml`).**
+- **Topology:** five Alpine containers with `NET_ADMIN` capability — three end hosts (`hostA` on `192.168.0.0/16`, `hostC` on `10.0.0.0/8`, `hostD` on `172.33.0.0/16`) connected through two routers (`routerAB`, `routerBCD`), with no two hosts sharing a subnet directly.
+- **Goal:** let `hostA` and `hostD` reach `hostC` purely via routing — without changing any host's IP address — proven via `ping 10.0.0.10` and `traceroute 192.168.0.10` from `hostD`.
+- **Process:** IP forwarding enabled on both routers (`sysctls: net.ipv4.ip_forward=1` in the compose file); `iproute2`  installed on each container (`apk add iproute2`, not included by default on Alpine); static routes added by hand on every router and host with `ip route add <destination-network> via <next-hop>`, so each node knows how to reach the networks it isn't directly attached to.
+- **Verification:** on `hostD`, `ping -c 4 10.0.0.10` returns 4/4 replies from hostC, and `traceroute 192.168.0.10` shows the expected two-hop path through `routerBCD` and `routerAB`. Only routes were added — no address or NAT changes — exactly as required.
